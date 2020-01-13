@@ -14,6 +14,8 @@ import warnings
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 
+if sys.version_info[:2] < (3, 6):
+    raise Exception('This version of fse needs Python 3.6 or later.')
 
 class custom_build_ext(build_ext):
     '''Allow C extension building to fail.
@@ -77,14 +79,13 @@ http://api.mongodb.org/python/current/installation.html#osx
         self.include_dirs.append(numpy.get_include())
 
 mod_dir = os.path.join(os.path.dirname(__file__), 'fse', 'models')
-dev_dir = os.path.join(os.path.dirname(__file__), 'fse', 'exp')
 fse_dir = os.path.join(os.path.dirname(__file__), 'fse')
 
 cmdclass = {'build_ext': custom_build_ext}
 
 setup(
     name='fse',
-    version='0.0.4',
+    version='0.1.15',
     description='Fast Sentence Embeddings for Gensim',
 
     author=u'Oliver Borchers',
@@ -92,13 +93,12 @@ setup(
 
     url="https://github.com/oborchers/Fast_Sentence_Embeddings",
 
+    license='GPL-3.0',
+
     ext_modules=[
-        Extension('fse.models.sentence2vec_inner',
-                sources=['./fse/models/sentence2vec_inner.c'],
+        Extension('fse.models.average_inner',
+                sources=['./fse/models/average_inner.c'],
                 include_dirs=[mod_dir]),
-        Extension('fse.exp.sif_variants_cy',
-                sources=['./fse/exp/sif_variants_cy.c'],
-                include_dirs=[dev_dir]),
         ],
         
     cmdclass=cmdclass,
@@ -106,15 +106,16 @@ setup(
 
     zip_safe=False,
 
+    test_suite="fse.test",
+
     install_requires=[
         'numpy >= 1.11.3',
         'scipy >= 0.18.1',
-        'six >= 1.5.0',
         'smart_open >= 1.5.0',
         'scikit-learn >= 0.19.1',
-        'gensim >= 3.4.0',
+        'gensim >= 3.8.0',
         'wordfreq >= 2.2.1',
+        'psutil'
     ],
-
     include_package_data=True,
 )
